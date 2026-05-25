@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jamili Pereira — Dev & Cibersegurança</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a000f;
+    --surface: #120020;
+    --purple: #c084fc;
+    --pink: #f472b6;
+    --white: #f8f0ff;
+    --muted: rgba(200, 150, 255, 0.4);
+    --border: rgba(192, 132, 252, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: var(--purple);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s;
+    box-shadow: 0 0 20px var(--purple);
+  }
+
+  .cursor-ring {
+    position: fixed;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(192, 132, 252, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, width 0.2s, height 0.2s;
+  }
+
+  /* Background blobs */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(80px);
+    opacity: 0.15;
+  }
+  .blob-1 { width: 600px; height: 600px; background: #9333ea; top: -200px; right: -100px; }
+  .blob-2 { width: 400px; height: 400px; background: #ec4899; bottom: -100px; left: -100px; }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    background: rgba(10, 0, 15, 0.6);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    background: linear-gradient(90deg, var(--purple), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--purple); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
+    position: relative;
+  }
+
+  .hero-content { max-width: 800px; }
+
+  .hero-tag {
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(64px, 8vw, 110px);
+    font-weight: 600;
+    line-height: 0.95;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-name .grad {
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-role {
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero-desc {
+    font-size: 15px;
+    line-height: 1.9;
+    color: rgba(248, 240, 255, 0.6);
+    max-width: 560px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .btn {
+    padding: 14px 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: all 0.3s;
+    cursor: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    color: var(--bg);
+    font-weight: 400;
+  }
+
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-2px); }
+
+  .btn-outline {
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-outline:hover { border-color: var(--purple); color: var(--purple); transform: translateY(-2px); }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 60px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 0.8s 1.4s forwards;
+  }
+
+  .scroll-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--purple), transparent);
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 120px 60px;
+    position: relative;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--purple);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 600;
+    margin-bottom: 60px;
+    line-height: 1.1;
+  }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .about-text {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(248, 240, 255, 0.6);
+  }
+
+  .about-text p + p { margin-top: 20px; }
+
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .stat-card {
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    border-radius: 4px;
+    background: rgba(192, 132, 252, 0.04);
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .stat-card:hover { border-color: var(--purple); transform: translateY(-4px); }
+
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--purple), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* SKILLS */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .skill-card {
+    border: 1px solid var(--border);
+    padding: 32px;
+    border-radius: 4px;
+    background: rgba(192, 132, 252, 0.03);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 0;
+    background: linear-gradient(180deg, var(--purple), var(--pink));
+    transition: height 0.3s;
+  }
+
+  .skill-card:hover { border-color: rgba(192, 132, 252, 0.3); transform: translateY(-4px); }
+  .skill-card:hover::before { height: 100%; }
+
+  .skill-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .skill-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--white);
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .skill-tag {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--purple);
+    border: 1px solid rgba(192, 132, 252, 0.2);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  /* PROJECTS */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+  }
+
+  .project-card {
+    border: 1px solid var(--border);
+    padding: 40px;
+    border-radius: 4px;
+    background: rgba(192, 132, 252, 0.03);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card:hover { border-color: rgba(192, 132, 252, 0.3); transform: translateY(-6px); }
+
+  .project-number {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .project-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .project-desc {
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(248, 240, 255, 0.5);
+    margin-bottom: 24px;
+  }
+
+  .project-techs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .project-tech {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--pink);
+    border: 1px solid rgba(244, 114, 182, 0.2);
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .project-link {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--purple);
+    text-decoration: none;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: gap 0.2s;
+  }
+
+  .project-link:hover { gap: 14px; }
+
+  /* CONTACT */
+  .contact-inner {
+    max-width: 600px;
+  }
+
+  .contact-desc {
+    font-size: 15px;
+    line-height: 2;
+    color: rgba(248, 240, 255, 0.5);
+    margin-bottom: 48px;
+  }
+
+  .contact-links {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 20px 24px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+
+  .contact-link:hover { border-color: var(--purple); color: var(--purple); transform: translateX(8px); }
+
+  .contact-link-icon { font-size: 18px; }
+
+  /* FOOTER */
+  footer {
+    padding: 40px 60px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s, transform 0.8s;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Divider */
+  .divider {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--purple), var(--pink));
+    margin-bottom: 60px;
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav>
+  <div class="nav-logo">JP</div>
+  <ul class="nav-links">
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projetos">Projetos</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">// Fortaleza, CE — Disponível para oportunidades</div>
+    <h1 class="hero-name">
+      Jamili<br><span class="grad">Pereira</span>
+    </h1>
+    <div class="hero-role">Desenvolvedora · Analista de Cibersegurança</div>
+    <p class="hero-desc">
+      Graduada em Análise e Desenvolvimento de Sistemas, pós-graduanda em Cibersegurança. 
+      Apaixonada por construir soluções que unem tecnologia, segurança e experiência do usuário.
+    </p>
+    <div class="hero-btns">
+      <a href="#projetos" class="btn btn-primary">Ver projetos</a>
+      <a href="#contato" class="btn btn-outline">Entrar em contato</a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    scroll
+  </div>
+</section>
+
+<!-- SOBRE -->
+<section id="sobre">
+  <div class="section-label">// 01</div>
+  <h2 class="section-title reveal">Sobre mim</h2>
+  <div class="divider"></div>
+  <div class="about-grid reveal">
+    <div class="about-text">
+      <p>
+        Sou desenvolvedora com formação em Análise e Desenvolvimento de Sistemas pela Faculdade CDL 
+        e pós-graduação em andamento em Arquitetura de Software, Data Science e Cibersegurança.
+      </p>
+      <p>
+        Tenho experiência prática com Node.js, JavaScript, HTML, CSS e C#. 
+        Atuo também no desenvolvimento da presença digital de marcas, aplicando conhecimentos 
+        técnicos em ambiente real — do desenvolvimento ao tráfego pago com Google Ads.
+      </p>
+      <p>
+        Minha trajetória em vendas me deu uma visão orientada ao cliente: entendo não só o código, 
+        mas o impacto que ele gera para o negócio.
+      </p>
+    </div>
+    <div class="about-stats">
+      <div class="stat-card">
+        <div class="stat-number">2+</div>
+        <div class="stat-label">Anos de experiência</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Projetos desenvolvidos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Conexões no LinkedIn</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">∞</div>
+        <div class="stat-label">Vontade de aprender</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" style="background: rgba(192,132,252,0.02);">
+  <div class="section-label">// 02</div>
+  <h2 class="section-title reveal">Habilidades</h2>
+  <div class="divider"></div>
+  <div class="skills-grid">
+    <div class="skill-card reveal">
+      <div class="skill-icon">🌐</div>
+      <div class="skill-name">Front-end</div>
+      <div class="skill-tags">
+        <span class="skill-tag">HTML5</span>
+        <span class="skill-tag">CSS3</span>
+        <span class="skill-tag">JavaScript</span>
+        <span class="skill-tag">Responsivo</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-icon">⚙️</div>
+      <div class="skill-name">Back-end</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Node.js</span>
+        <span class="skill-tag">C#</span>
+        <span class="skill-tag">API REST</span>
+        <span class="skill-tag">Express</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-icon">🔐</div>
+      <div class="skill-name">Cibersegurança</div>
+      <div class="skill-tags">
+        <span class="skill-tag">LGPD</span>
+        <span class="skill-tag">Segurança da Informação</span>
+        <span class="skill-tag">Cybersecurity</span>
+      </div>
+    </div>
+    <div class="skill-card reveal">
+      <div class="skill-icon">📈</div>
+      <div class="skill-name">Marketing Digital</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Google Ads</span>
+        <span class="skill-tag">Tráfego Pago</span>
+        <span class="skill-tag">Criação de Conteúdo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJETOS -->
+<section id="projetos">
+  <div class="section-label">// 03</div>
+  <h2 class="section-title reveal">Projetos</h2>
+  <div class="divider"></div>
+  <div class="projects-grid">
+    <div class="project-card reveal">
+      <div class="project-number">01 —</div>
+      <div class="project-name">Portfólio Dev</div>
+      <p class="project-desc">Site de portfólio pessoal responsivo com design moderno, apresentando projetos, habilidades e informações de contato.</p>
+      <div class="project-techs">
+        <span class="project-tech">HTML</span>
+        <span class="project-tech">CSS</span>
+        <span class="project-tech">JavaScript</span>
+      </div>
+      <a href="https://github.com/jams0015" class="project-link">Ver no GitHub →</a>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-number">02 —</div>
+      <div class="project-name">Em breve</div>
+      <p class="project-desc">Novos projetos chegando. Acompanhe meu GitHub para ficar por dentro das novidades.</p>
+      <div class="project-techs">
+        <span class="project-tech">Node.js</span>
+        <span class="project-tech">API REST</span>
+      </div>
+      <a href="https://github.com/jams0015" class="project-link">Ver GitHub →</a>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-number">03 —</div>
+      <div class="project-name">Estética Givana</div>
+      <p class="project-desc">Desenvolvimento e manutenção do site institucional da marca, com gestão de campanhas Google Ads e criação de conteúdo digital.</p>
+      <div class="project-techs">
+        <span class="project-tech">HTML</span>
+        <span class="project-tech">CSS</span>
+        <span class="project-tech">Google Ads</span>
+      </div>
+      <a href="https://jamili-agostinho.netlify.app" class="project-link">Ver site →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTATO -->
+<section id="contato" style="background: rgba(192,132,252,0.02);">
+  <div class="section-label">// 04</div>
+  <h2 class="section-title reveal">Vamos conversar?</h2>
+  <div class="divider"></div>
+  <div class="contact-inner reveal">
+    <p class="contact-desc">
+      Estou aberta a oportunidades em desenvolvimento web, cibersegurança e tecnologia em geral. 
+      Se quiser trocar uma ideia, me chama!
+    </p>
+    <div class="contact-links">
+      <a href="mailto:jamili0038@gmail.com" class="contact-link">
+        <span class="contact-link-icon">✉</span>
+        jamili0038@gmail.com
+      </a>
+      <a href="https://www.linkedin.com/in/jamili-pereira" target="_blank" class="contact-link">
+        <span class="contact-link-icon">💼</span>
+        linkedin.com/in/jamili-pereira
+      </a>
+      <a href="https://github.com/jams0015" target="_blank" class="contact-link">
+        <span class="contact-link-icon">🐙</span>
+        github.com/jams0015
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2025 Jamili Pereira</span>
+  <span>Fortaleza, CE — Brasil</span>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 100);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
